@@ -58,12 +58,13 @@ output_index_label:
             "=HYPERLINK(""#'""&シート名&""'!" _
             & rngTmpFindCell.Address & """,""" _
             & rngTmpFindCell.Value & """)"
+        rngSheetIndex.Style = "標準"
 next_label:
         Set rngTmpFindCell = rngSearchRange.Find( _
-        After:=rngTmpFindCell _
-        , What:="?*" _
-        , SearchFormat:=True _
-        )
+            After:=rngTmpFindCell _
+            , What:="?*" _
+            , SearchFormat:=True _
+            )
     Loop While strFindFirstAddress <> rngTmpFindCell.Address
     
 End Sub
