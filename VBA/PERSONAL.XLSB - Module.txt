@@ -5,7 +5,7 @@ Option Explicit
 Public Sub UpdateSheetIndex()
     
     '定数宣言
-    Const strHeadLineNumberFormatLocal = ";;;@"
+    Const strHeadLineNumberFormatLocal = ";;"
     Dim rngSheetIndex As Range
     Dim rngSearchRange As Range
     Set rngSheetIndex = ActiveSheet.Range("シート目次")
