@@ -34,6 +34,8 @@ Public Sub UpdateSheetIndex()
     strFindFirstAddress = rngTmpFindCell.AddressLocal
     
     Do
+        
+        '見出しスタイルが適用されている場合→目次にリンクの挿入
         If rngTmpFindCell.Style.Name = "見出し 1" Then
             lColNum = 1
             GoTo output_index_label
@@ -52,6 +54,8 @@ Public Sub UpdateSheetIndex()
         Else
             GoTo next_label
         End If
+        
+        '見出しリンクの出力行程
 output_index_label:
         Set rngSheetIndex = rngSheetIndex.Offset(1, 0)
         rngSheetIndex.Offset(0, lColNum).Value = _
@@ -59,12 +63,14 @@ output_index_label:
             & rngTmpFindCell.Address & """,""" _
             & rngTmpFindCell.Value & """)"
         rngSheetIndex.Style = "標準"
+        
+        '次のセルを検索
 next_label:
         Set rngTmpFindCell = rngSearchRange.Find( _
-            After:=rngTmpFindCell _
-            , What:="?*" _
-            , SearchFormat:=True _
-            )
+        After:=rngTmpFindCell _
+        , What:="?*" _
+        , SearchFormat:=True _
+        )
     Loop While strFindFirstAddress <> rngTmpFindCell.Address
     
 End Sub
