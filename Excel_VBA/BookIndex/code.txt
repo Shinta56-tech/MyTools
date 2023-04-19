@@ -1,0 +1,13 @@
+Option Explicit
+
+'===============================================================================================
+'シート目次を更新する
+Public Sub BookIndex()
+    
+    Dim strPS1FileFullName As String
+    
+    strPS1FileFullName = "C:\Users\scsk-guest\Documents\.MyDocument\.MyApp\Excel-ブック目次\PowerShell\BookIndex.ps1"
+    
+    Call Shell("powershell -WindowStyle Hidden -File " & strPS1FileFullName)
+    
+End Sub
