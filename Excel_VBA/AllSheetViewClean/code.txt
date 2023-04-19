@@ -1,0 +1,17 @@
+Option Explicit
+
+'===============================================================================================
+'全シートの整形
+Public Sub AllSheetViewClean()
+    Dim ws As Worksheet
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.Activate
+        Cells(1, 1).Select
+        With ActiveWindow
+            .Zoom = 100
+            .ScrollRow = 1
+            .ScrollColumn = 1
+        End With
+    Next ws
+    ActiveWorkbook.Worksheets(1).Activate
+End Sub
