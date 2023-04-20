@@ -228,7 +228,7 @@ Add-Type @"
         #ツリービューのダブルクリックイベントの設定
         $treeView.Add_NodeMouseDoubleClick(${function:BookIndex_NodeMouseDoubleClick})
 
-    # FromBookIndexの表示----------------------------------------------------------------------
+    # BookIndexFormの表示----------------------------------------------------------------------
 
         # GUIの表示
         [void]$BookIndexForm.ShowDialog()
