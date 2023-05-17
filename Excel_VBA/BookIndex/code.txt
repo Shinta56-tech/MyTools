@@ -4,9 +4,11 @@ Option Explicit
 'シート目次を更新する
 Public Sub BookIndex()
     
+    'powershell の設定を変更しておく　powershell set-executionpolicy remotesigned
+    
     Dim strPS1FileFullName As String
     
-    strPS1FileFullName = "C:\Users\scsk-guest\Documents\.MyDocument\.MyApp\Excel-ブック目次\PowerShell\BookIndex.ps1"
+    strPS1FileFullName = "C:\Users\<Username>\Documents\.MyDocument\.MyApp\Excel-ブック目次\BookIndex.ps1"
     
     Call Shell("powershell -WindowStyle Hidden -File " & strPS1FileFullName)
     
