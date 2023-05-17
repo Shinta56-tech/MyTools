@@ -83,17 +83,15 @@ Add-Type @"
         # ノードの展開を維持
         $sender.SelectedNode.ExpandAll()
         # アドレス情報の取得
-        $address = $sender.SelectedNode.Name
-        $bookName = [RegEx]::Matches($address, "(?<=(\\))[^\\]+?(?=(\]))") | Select-Object -Last 1 | % {$_.Value}
-        $sheetName = [RegEx]::Matches($address, "(?<=(')).+?(?=('!))") | Select-Object -Last 1 | % {$_.Value}
-        $range = [RegEx]::Matches($address, "(?<=('!)).+") | Select-Object -Last 1 | % {$_.Value}
+        $nameXmlObj = [xml]$sender.SelectedNode.Name
+        $distribute = $nameXmlObj.Distribute
         # Excelでアドレスを選択して表示
-        $book = $Excel.Workbooks($bookName)
-        $sheet = $book.Worksheets($sheetName)
+        $book = $Excel.Workbooks($distribute.bookName)
+        $sheet = $book.Worksheets($distribute.sheetName)
         $sheet.Activate()
-        $sheet.Range($range).select()
+        $sheet.Range($distribute.address).select()
         # Excelをアクティブ
-        [Microsoft.VisualBasic.Interaction]::AppActivate($bookName)
+        [Microsoft.VisualBasic.Interaction]::AppActivate($distribute.bookName)
     }
 
 # メイン処理========================================================================================
@@ -110,7 +108,11 @@ Add-Type @"
             # XMLシート要素の作成・追加
             $sheetElement = $HeadLineCellsXML.CreateElement("Node")
             $sheetElement.SetAttribute("type", "sheet")
-            $sheetElement.SetAttribute("name","[" + $Excel.ActiveWorkbook.FullName + "]'"  + $sheet.Name + "'!A1")
+            $sheetElement.SetAttribute("name","<Distribute version=""2"" revision=""1"">" + 
+                    "<bookName>" + $Excel.ActiveWorkbook.Name + "</bookName>" +
+                    "<sheetName>" + $sheet.Name + "</sheetName>" +
+                    "<address>" + "`$A`$1" + "</address>" +
+                    "</Distribute>")
             $sheetElement.SetAttribute("label", $sheet.Name)
             $HeadLineCellsXML.TreeViewNodes.AppendChild($sheetElement)
             
@@ -147,7 +149,11 @@ Add-Type @"
 
                 # XML見出し要素の作成
                 $headLineElement = $HeadLineCellsXML.CreateElement("Node")
-                $headLineElement.SetAttribute("name","[" + $Excel.ActiveWorkbook.FullName + "]'" + $sheet.Name + "'!" + $foundCell.Address())
+                $headLineElement.SetAttribute("name","<Distribute version=""2"" revision=""1"">" + 
+                    "<bookName>" + $Excel.ActiveWorkbook.Name + "</bookName>" +
+                    "<sheetName>" + $sheet.Name + "</sheetName>" +
+                    "<address>" + $foundCell.Address() + "</address>" +
+                    "</Distribute>")
                 $headLineElement.SetAttribute("label", $foundCell.Value())
                 If ($activeFlag) {$headLineElement.SetAttribute("active", "active")}
 
