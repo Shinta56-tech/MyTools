@@ -1,0 +1,8 @@
+javascript:(function() {
+  var username = "YourUsername";
+  var password = "YourPassword";
+  var usernameInput = document.getElementById("userid");
+  var passwordInput = document.getElementById("password");
+  usernameInput.value = username;
+  passwordInput.value = password;
+})();
