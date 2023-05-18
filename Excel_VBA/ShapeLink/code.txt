@@ -1,0 +1,104 @@
+Option Explicit
+
+' 図形の代替テキストからリンク生成
+' {
+'  "name":"Shape Name"
+'  ,"link":"Cell Link"
+' }
+' VBA-JSON を使用。Dictionaryクラスを参照設定する。
+Public Sub ShapeToCellLink()
+    
+    ' 変数定義
+    Dim selectedShapes As Object    ' 対象図形
+    
+    ' 選択している図形を取得する。なければ全選択
+    On Error GoTo all_shapes
+    Set selectedShapes = Selection.ShapeRange
+    On Error GoTo 0
+    GoTo execute
+
+all_shapes:
+
+    Set selectedShapes = ActiveSheet.Shapes
+    
+execute:
+
+    ' 図形を繰り返して、リンクを挿入する
+    Dim tmpShape As Shape
+    For Each tmpShape In selectedShapes
+    
+        ' 代替テキストからJSONオブジェクト生成
+        Dim jsonObj As Object
+        Set jsonObj = JsonConverter.ParseJson(tmpShape.AlternativeText)
+        ' JSONオブジェクトより図形を編集
+            ' 図形名を変更
+                tmpShape.Name = jsonObj("name")
+            ' 図形のハイパーリンクを挿入
+                ActiveSheet.Hyperlinks.Add _
+                Anchor:=tmpShape, _
+                Address:="", _
+                SubAddress:=ReplaceHeadlineAddress(jsonObj("link"))
+    Next tmpShape
+
+End Sub
+
+' 見出しのアドレスを取得する
+' head_見出しタイトル → $A$1
+Private Function ReplaceHeadlineAddress(path As String) As String
+    
+    ' 正規表現オブジェクトの生成
+    Dim regex As Object
+    Set regex = CreateObject("VBScript.RegExp")
+    
+    ' 正規表現の設定
+    With regex
+        .Pattern = "head_(.+)"
+        .IgnoreCase = False
+        .Global = True
+    End With
+    
+    ' 該当チェック
+    If regex.test(path) Then
+        
+        ' 該当箇所の置き換え
+        Dim tmpPath As String
+        tmpPath = regex.Replace(path, "A1")
+        
+        ' 見出しタイトルの抽出
+        Dim matchObj As Object
+        Set matchObj = regex.execute(path)
+        Dim headlineTitle As String
+        headlineTitle = regex.Replace(matchObj.Item(0).Value, "$1")
+        
+        ' 見出しアドレスの取得
+        Dim findCell As Range
+        Set findCell = FindHeadLine(Range(tmpPath).Parent, headlineTitle)
+        If Not findCell Is Nothing Then
+            ReplaceHeadlineAddress = regex.Replace(path, "") & findCell.Address
+        Else
+            ReplaceHeadlineAddress = ""
+        End If
+        
+    Else
+        ReplaceHeadlineAddress = path
+    End If
+    
+End Function
+
+' 見出しセルを値から取得
+Function FindHeadLine(targetSheet As Worksheet, headlineValue As String) As Range
+    
+    ' 定数宣言
+    Const HEADLINE_NUMBERFORMATLOCAL = ";;"    ' 見出しスタイルの表示形式
+    
+    ' 検索スタイル設定
+    Application.FindFormat.Clear
+    Application.FindFormat.NumberFormatLocal = HEADLINE_NUMBERFORMATLOCAL
+
+    ' 検索
+    Set FindHeadLine = targetSheet.UsedRange.Find(headlineValue, SearchFormat:=True)
+
+    ' 検索スタイル設定の初期化
+    Application.FindFormat.Clear
+
+End Function
