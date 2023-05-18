@@ -1,0 +1,62 @@
+Option Explicit
+
+Public Sub SheetIndex()
+
+    ' 定数宣言
+    Const HEADLINE_NUMBERFORMATLOCAL = ";;"    ' 見出しスタイルの表示形式
+    Const INDEX_CELL_NAME = "シート目次"       ' 出力先セルの名前
+    Const SHEETNAME_CELL_NAME = "シート名"     ' シート名格納セルの名前
+
+    ' 検索スタイル設定
+    Application.FindFormat.Clear
+    Application.FindFormat.NumberFormatLocal = HEADLINE_NUMBERFORMATLOCAL
+    
+    ' 検索（初回）
+    Dim findCell As Range ' 該当セル
+    Set findCell = ActiveSheet.UsedRange.Find("?*", SearchFormat:=True)
+    
+    ' 見出しなし→終了
+    If findCell Is Nothing Then Exit Sub
+    
+    ' 初回該当セルのアドレスを保存
+    Dim findAddress As String
+    findAddress = findCell.Address
+    
+    '出力セルの取得
+    Dim indexCell As Range
+    Set indexCell = ActiveSheet.Range(INDEX_CELL_NAME)
+    
+    '出力セルのクリア
+    indexCell.Resize(1, 5).CurrentRegion.Offset(0, 1).Clear
+    
+    ' 初回該当セルになるまで検索と出力を繰り返す
+    Do
+        
+        ' 該当セルのリンクを出力
+            ' 出力する関数を作成
+            Dim formulaTxt As String ' リンク関数
+            formulaTxt = "=HYPERLINK(""#'"" & " & SHEETNAME_CELL_NAME & " & ""'!" & findCell.Address & """,""" & findCell.Value & """)"
+            ' 見出しにより出力箇所を変更
+            Select Case findCell.Style.Name
+                Case "見出し 1"
+                    indexCell.Offset(1, 1).Formula = formulaTxt
+                Case "見出し 2"
+                    indexCell.Offset(1, 2).Formula = formulaTxt
+                Case "見出し 3"
+                    indexCell.Offset(1, 3).Formula = formulaTxt
+                Case "見出し 4"
+                    indexCell.Offset(1, 4).Formula = formulaTxt
+                Case Else
+            End Select
+            ' 出力セルを次へ
+            Set indexCell = indexCell.Offset(1, 0)
+        
+        ' 次の検索
+        Set findCell = ActiveSheet.UsedRange.Find("?*", After:=findCell, SearchFormat:=True)
+        
+    Loop While findAddress <> findCell.Address
+    
+    ' 検索スタイル設定の初期化
+    Application.FindFormat.Clear
+    
+End Sub
